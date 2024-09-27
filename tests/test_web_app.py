@@ -5,7 +5,7 @@ from unittest import mock
 import pytest
 
 from aiohttp import log, web
-from aiohttp.test_utils import make_mocked_coro
+
 from aiohttp.typedefs import Handler
 
 
@@ -21,8 +21,8 @@ def test_app_call() -> None:
 
 async def test_app_register_on_finish() -> None:
     app = web.Application()
-    cb1 = make_mocked_coro(None)
-    cb2 = make_mocked_coro(None)
+    cb1 = mock.AsyncMock(None)
+    cb2 = mock.AsyncMock(None)
     app.on_cleanup.append(cb1)
     app.on_cleanup.append(cb2)
     app.freeze()

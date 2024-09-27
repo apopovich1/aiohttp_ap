@@ -26,14 +26,11 @@ from aiohttp import (
 from aiohttp.abc import AbstractResolver, ResolveResult
 from aiohttp.hdrs import CONTENT_LENGTH, CONTENT_TYPE, TRANSFER_ENCODING
 from aiohttp.pytest_plugin import AiohttpClient, AiohttpServer
-from aiohttp.test_utils import make_mocked_coro
 from aiohttp.typedefs import Handler, Middleware
 from aiohttp.web_protocol import RequestHandler
 
-try:
-    import brotlicffi as brotli
-except ImportError:
-    import brotli
+
+import brotli
 
 try:
     import ssl
@@ -240,7 +237,7 @@ async def test_post_form(aiohttp_client: AiohttpClient) -> None:
     app.router.add_post("/", handler)
     client = await aiohttp_client(app)
 
-    resp = await client.post("/", data={"a": "1", "b": "2", "c": ""})
+    resp = await client.post("/", data={"a": 1, "b": 2, "c": ""})
     assert 200 == resp.status
     txt = await resp.text()
     assert "OK" == txt
@@ -528,7 +525,7 @@ async def test_post_form_with_duplicate_keys(aiohttp_client: AiohttpClient) -> N
     app.router.add_post("/", handler)
     client = await aiohttp_client(app)
 
-    resp = await client.post("/", data=MultiDict([("a", "1"), ("a", "2")]))
+    resp = await client.post("/", data=MultiDict([("a", 1), ("a", 2)]))
     assert 200 == resp.status
 
     resp.release()
@@ -1998,13 +1995,13 @@ async def test_iter_any(aiohttp_server: AiohttpServer) -> None:
 
 
 async def test_request_tracing(aiohttp_server: AiohttpServer) -> None:
-    on_request_start = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
-    on_request_end = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
-    on_dns_resolvehost_start = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
-    on_dns_resolvehost_end = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
-    on_request_redirect = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
-    on_connection_create_start = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
-    on_connection_create_end = mock.Mock(side_effect=make_mocked_coro(mock.Mock()))
+    on_request_start = mock.AsyncMock()
+    on_request_end = mock.AsyncMock()
+    on_dns_resolvehost_start = mock.AsyncMock()
+    on_dns_resolvehost_end = mock.AsyncMock()
+    on_request_redirect = mock.AsyncMock()
+    on_connection_create_start = mock.AsyncMock()
+    on_connection_create_end = mock.AsyncMock()
 
     async def redirector(request: web.Request) -> NoReturn:
         raise web.HTTPFound(location=URL("/redirected"))
